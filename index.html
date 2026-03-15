@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão São Paulo FC - Tricolores do Tremendão</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #cc0000, #8b0000);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(204,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(90deg, transparent, transparent 33%, rgba(0,0,0,0.15) 33%, rgba(0,0,0,0.15) 66%, rgba(255,255,255,0.08) 66%, rgba(255,255,255,0.08) 100%);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .header h2 {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 5px;
+            position: relative;
+        }
+        .header .subtitle {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        /* Ranking */
+        .ranking-section { margin-bottom: 30px; }
+        .ranking-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        .ranking-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+        .ranking-table td {
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.06);
+        }
+        .ranking-table tr td:first-child { border-radius: 12px 0 0 12px; }
+        .ranking-table tr td:last-child { border-radius: 0 12px 12px 0; }
+
+        .ranking-table tbody tr {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .ranking-table tbody tr:hover {
+            transform: translateX(5px);
+        }
+
+        .pos {
+            font-weight: 900;
+            font-size: 1.3em;
+            width: 40px;
+            text-align: center;
+        }
+        .pos-1 { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .pos-2 { color: #c0c0c0; }
+        .pos-3 { color: #cd7f32; }
+
+        .nome { font-weight: 600; font-size: 1.1em; }
+        .pontos {
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+        .pontos-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bar-bg {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .bar-gold { background: linear-gradient(90deg, #ffd700, #ffaa00); }
+        .bar-silver { background: linear-gradient(90deg, #c0c0c0, #a0a0a0); }
+        .bar-bronze { background: linear-gradient(90deg, #cd7f32, #b87333); }
+        .bar-default { background: linear-gradient(90deg, #cc0000, #ff4444); }
+
+        .status-pending {
+            color: #888;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        /* Jogos */
+        .jogos-section { margin-bottom: 30px; }
+        .jogos-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .jogos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+        }
+        .jogo-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .jogo-card:hover { transform: translateY(-3px); }
+        .jogo-card.played {
+            border-color: rgba(0,200,0,0.3);
+            background: rgba(0,200,0,0.05);
+        }
+        .jogo-card .adversario {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .jogo-card .info {
+            font-size: 0.85em;
+            color: #aaa;
+        }
+        .jogo-card .resultado {
+            margin-top: 8px;
+            font-size: 1.3em;
+            font-weight: 900;
+        }
+        .resultado-v { color: #00cc44; }
+        .resultado-e { color: #ffaa00; }
+        .resultado-d { color: #ff4444; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-pendente { background: rgba(255,255,255,0.15); color: #aaa; }
+        .badge-jogado { background: rgba(0,200,0,0.2); color: #00cc44; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+            font-size: 0.85em;
+        }
+        .footer a { color: #cc0000; text-decoration: none; }
+
+        .update-info {
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        /* Pontuacao */
+        .pontuacao-info {
+            background: rgba(204,0,0,0.15);
+            border: 1px solid rgba(204,0,0,0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+        }
+        .pontuacao-info strong { color: #ff6666; }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8em; }
+            .ranking-table th, .ranking-table td { padding: 10px 8px; }
+            .nome { font-size: 0.95em; }
+            .jogos-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>&#9917; BOLÃO SÃO PAULO</h1>
+            <h2>Tricolores do Tremendão</h2>
+            <p class="subtitle">Próximos 7 Jogos &bull; Pontuação Máxima: 21 pts</p>
+        </div>
+
+        <div class="update-info">
+            Última atualização: <strong id="lastUpdate">15/03/2026</strong>
+        </div>
+
+        <div class="pontuacao-info">
+            <strong>Regras:</strong> 3 pontos por acerto exato &bull; Pontuação máxima: 21 pontos (7 jogos x 3 pts)
+        </div>
+
+        <div class="ranking-section">
+            <h3>&#127942; Ranking</h3>
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th>Pos</th>
+                        <th>Nome</th>
+                        <th>Pontos</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="jogos-section">
+            <h3>&#9917; Jogos</h3>
+            <div class="jogos-grid" id="jogosGrid">
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&#128308;&#9899;&#9898; Bolão dos Tricolores do Tremendão</p>
+            <p style="margin-top:5px;">Feito com ❤️ por Claude Code</p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // DADOS DO BOLÃO - EDITAR AQUI
+        // ==========================================
+        const DADOS = {
+            ultimaAtualizacao: "15/03/2026",
+
+            jogadores: [
+                { nome: "Omar Taha",        pontos: 16, apostou: true },
+                { nome: "William",          pontos: 15, apostou: true },
+                { nome: "Trakinas",         pontos: 13, apostou: true },
+                { nome: "Issam Mourad",     pontos: 12, apostou: true },
+                { nome: "Rodolfo Oráculo",  pontos: 11, apostou: true },
+                { nome: "Amin Chahine",     pontos: 9,  apostou: true },
+                { nome: "Daniel Coquieri",  pontos: 0,  apostou: false },
+                { nome: "Omar Saleh",       pontos: 0,  apostou: false },
+                { nome: "Ricardo Cruz",     pontos: 0,  apostou: false },
+            ],
+
+            jogos: [
+                { adversario: "RB Bragantino", local: "Casa", data: "", resultado: null, status: "pendente" },
+                { adversario: "Atlético-MG",   local: "Fora", data: "", resultado: null, status: "pendente" },
+                { adversario: "Palmeiras",     local: "Casa", data: "", resultado: null, status: "pendente" },
+                { adversario: "Internacional", local: "Fora", data: "", resultado: null, status: "pendente" },
+                { adversario: "Cruzeiro",      local: "Casa", data: "", resultado: null, status: "pendente" },
+                { adversario: "Vitória",       local: "Fora", data: "", resultado: null, status: "pendente" },
+                { adversario: "Vasco",         local: "Casa", data: "", resultado: null, status: "pendente" },
+            ]
+        };
+        // ==========================================
+
+        function renderRanking() {
+            const tbody = document.getElementById('rankingBody');
+            // Sort by pontos desc, then by name
+            const sorted = [...DADOS.jogadores].sort((a, b) => {
+                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+                if (a.apostou !== b.apostou) return a.apostou ? -1 : 1;
+                return a.nome.localeCompare(b.nome);
+            });
+
+            let pos = 0;
+            let lastPontos = -1;
+            sorted.forEach((j, i) => {
+                if (j.pontos !== lastPontos) { pos = i + 1; lastPontos = j.pontos; }
+
+                const barClass = pos === 1 ? 'bar-gold' : pos === 2 ? 'bar-silver' : pos === 3 ? 'bar-bronze' : 'bar-default';
+                const posClass = pos <= 3 ? `pos-${pos}` : '';
+                const pct = (j.pontos / 21 * 100).toFixed(0);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="pos ${posClass}">${j.apostou ? pos : '—'}</td>
+                    <td class="nome">${j.nome}</td>
+                    <td>
+                        ${j.apostou
+                            ? `<div class="pontos-bar">
+                                <span class="pontos">${j.pontos}/21</span>
+                                <div class="bar-bg"><div class="bar-fill ${barClass}" style="width:${pct}%"></div></div>
+                               </div>`
+                            : '<span class="status-pending">Ainda não apostou</span>'
+                        }
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderJogos() {
+            const grid = document.getElementById('jogosGrid');
+            DADOS.jogos.forEach(jogo => {
+                const isPlayed = jogo.status === 'jogado';
+                const card = document.createElement('div');
+                card.className = `jogo-card ${isPlayed ? 'played' : ''}`;
+
+                let resultadoHTML = '';
+                if (jogo.resultado) {
+                    const [gSP, gAdv] = jogo.resultado;
+                    const cls = gSP > gAdv ? 'resultado-v' : gSP === gAdv ? 'resultado-e' : 'resultado-d';
+                    resultadoHTML = `<div class="resultado ${cls}">SP ${gSP} x ${gAdv}</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="adversario">${jogo.local === 'Casa' ? 'SP x' : ''} ${jogo.adversario} ${jogo.local === 'Fora' ? 'x SP' : ''}</div>
+                    <div class="info">${jogo.local === 'Casa' ? '🏟️ Morumbis' : '✈️ Fora'} ${jogo.data ? '• ' + jogo.data : ''}</div>
+                    ${resultadoHTML || `<span class="badge badge-pendente">A definir</span>`}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('lastUpdate').textContent = DADOS.ultimaAtualizacao;
+        renderRanking();
+        renderJogos();
+    </script>
+</body>
+</html>
