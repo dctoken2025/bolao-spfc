@@ -213,11 +213,52 @@
         }
         .pontuacao-info strong { color: #ff6666; }
 
+        /* Palpites */
+        .palpites-section { margin-bottom: 30px; }
+        .palpites-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .palpites-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.04);
+        }
+        .palpites-table th {
+            padding: 12px 8px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #aaa;
+            background: rgba(255,255,255,0.08);
+            text-align: center;
+        }
+        .palpites-table th:first-child { text-align: left; padding-left: 14px; }
+        .palpites-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9em;
+        }
+        .palpites-table td:first-child {
+            text-align: left;
+            padding-left: 14px;
+            font-weight: 600;
+        }
+        .palpite-v { color: #00cc44; font-weight: 700; }
+        .palpite-e { color: #ffaa00; font-weight: 700; }
+        .palpite-d { color: #ff4444; font-weight: 700; }
+        .palpite-none { color: #555; }
+
         @media (max-width: 600px) {
             .header h1 { font-size: 1.8em; }
             .ranking-table th, .ranking-table td { padding: 10px 8px; }
             .nome { font-size: 0.95em; }
             .jogos-grid { grid-template-columns: 1fr 1fr; }
+            .palpites-table th, .palpites-table td { padding: 8px 4px; font-size: 0.75em; }
         }
     </style>
 </head>
@@ -258,6 +299,12 @@
             </div>
         </div>
 
+        <div class="palpites-section">
+            <h3>&#128203; Palpites por Jogador</h3>
+            <table class="palpites-table" id="palpitesTable">
+            </table>
+        </div>
+
         <div class="footer">
             <p>&#128308;&#9899;&#9898; Bolão dos Tricolores do Tremendão</p>
             <p style="margin-top:5px;">Feito com ❤️ por Claude Code</p>
@@ -271,16 +318,18 @@
         const DADOS = {
             ultimaAtualizacao: "15/03/2026",
 
+            // Palpites: V = Vitória SP, E = Empate, D = Derrota SP, null = não apostou
+            // Ordem: [Bragantino, CAM, Palmeiras, Inter, Cruzeiro, Vitória, Vasco]
             jogadores: [
-                { nome: "Omar Taha",        pontos: 16, apostou: true },
-                { nome: "William",          pontos: 15, apostou: true },
-                { nome: "Trakinas",         pontos: 13, apostou: true },
-                { nome: "Issam Mourad",     pontos: 12, apostou: true },
-                { nome: "Rodolfo Oráculo",  pontos: 11, apostou: true },
-                { nome: "Amin Chahine",     pontos: 9,  apostou: true },
-                { nome: "Daniel Coquieri",  pontos: 0,  apostou: false },
-                { nome: "Omar Saleh",       pontos: 0,  apostou: false },
-                { nome: "Ricardo Cruz",     pontos: 0,  apostou: false },
+                { nome: "Omar Taha",        pontos: 16, apostou: true,  palpites: [null,null,null,null,null,null,null] },
+                { nome: "William",          pontos: 15, apostou: true,  palpites: [null,null,null,null,null,null,null] },
+                { nome: "Trakinas",         pontos: 13, apostou: true,  palpites: [null,null,null,null,null,null,null] },
+                { nome: "Issam Mourad",     pontos: 12, apostou: true,  palpites: [null,null,null,null,null,null,null] },
+                { nome: "Rodolfo Oráculo",  pontos: 11, apostou: true,  palpites: [null,null,null,null,null,null,null] },
+                { nome: "Amin Chahine",     pontos: 9,  apostou: true,  palpites: [null,null,null,null,null,null,null] },
+                { nome: "Daniel Coquieri",  pontos: 0,  apostou: true,  palpites: ["E","V","V","E","V","V","D"] },
+                { nome: "Omar Saleh",       pontos: 0,  apostou: false, palpites: [null,null,null,null,null,null,null] },
+                { nome: "Ricardo Cruz",     pontos: 0,  apostou: false, palpites: [null,null,null,null,null,null,null] },
             ],
 
             jogos: [
@@ -354,9 +403,36 @@
             });
         }
 
+        function renderPalpites() {
+            const table = document.getElementById('palpitesTable');
+            const labels = { V: 'V', E: 'E', D: 'D' };
+            const classes = { V: 'palpite-v', E: 'palpite-e', D: 'palpite-d' };
+            const abrev = DADOS.jogos.map(j => j.adversario.split(' ')[0].substring(0,3).toUpperCase());
+
+            let headerHTML = '<thead><tr><th>Jogador</th>';
+            abrev.forEach(a => { headerHTML += `<th>${a}</th>`; });
+            headerHTML += '</tr></thead>';
+
+            let bodyHTML = '<tbody>';
+            DADOS.jogadores.forEach(j => {
+                bodyHTML += `<tr><td>${j.nome}</td>`;
+                j.palpites.forEach(p => {
+                    if (p) {
+                        bodyHTML += `<td class="${classes[p]}">${labels[p]}</td>`;
+                    } else {
+                        bodyHTML += `<td class="palpite-none">—</td>`;
+                    }
+                });
+                bodyHTML += '</tr>';
+            });
+            bodyHTML += '</tbody>';
+            table.innerHTML = headerHTML + bodyHTML;
+        }
+
         document.getElementById('lastUpdate').textContent = DADOS.ultimaAtualizacao;
         renderRanking();
         renderJogos();
+        renderPalpites();
     </script>
 </body>
 </html>
